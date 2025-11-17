@@ -1,6 +1,6 @@
 // static/frontend.js
 
-const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzhVLNRU-ZZh7ZCcI5oXIt3tQqJWvbZ3Hdca1dpPRHn-3KceocUqOGx7PZS0Q2E4y30/exec"
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhvj7YxIdxz7QlSKaYHfxQyyXz4jIJrs2xZLyNYGAEAky-r7uUdcS-JK-o9-f21e5v/exec"
 
 const form = document.getElementById("assessmentForm");
 const startTime = Date.now();
@@ -150,7 +150,7 @@ form.addEventListener("submit", async (ev) => {
   // send to Google App script
   responseMsg.textContent = "Saving…";
   try {
-    const res = await fetch(GOOGLE_SHEET_URL, {
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
