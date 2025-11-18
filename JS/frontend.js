@@ -99,70 +99,100 @@ function drawChart(scores, framework = "ACTFL") {
 }
 
 
-form.addEventListener("submit", async (ev) => {
-  ev.preventDefault();
+// Direct form submission
+form.addEventListener("submit", () => {
+  // metadata as hidden fields
+  const timeField = document.createElement("input");
+  timeField.type = "hidden";
+  timeField.name = "time_taken_seconds";
+  timeField.value = Math.floor((Date.now() - startTime) / 1000);
+  form.appendChild(timeField);
 
-  // collect all form data
-  const formData = new FormData(form);
+  const dateField = document.createElement("input");
+  dateField.type = "hidden";
+  dateField.name = "Completion_Date";
+  dateField.value = new Date().toISOString().slice(0,10);
+  form.appendChild(dateField);
 
-  // capture numeric fields
-  [
-    "years_elementary","years_junior","years_high_school","years_university",
-    "years_institutes","age","self_reading","self_listening",
-    "self_writing","self_speaking"
-  ].forEach(f => {
-    const val = formData.get(f);
-    formData.set(f, val ? Number(val) : 0); // 0 if no input
-  });
-
-  // add metadata
-  formData.set("time_taken_seconds", Math.floor((Date.now() - startTime) / 1000));
-  formData.set("Completion_Date", new Date().toISOString().slice(0,10));
-
-  const framework = formData.get("framework") || "ACTFL";
-
-  // compute scores for the shown block
+  // highest skill levels computed
+  const framework = document.querySelector('input[name="framework"]:checked').value || "ACTFL";
   const scores = computeSkillScores(framework);
   ["Reading","Listening","Writing","Speaking"].forEach(skill => {
-    formData.set(`${framework} ${skill} Proficiency Can Do Statements`, scores[skill]);
+    const f = document.createElement("input");
+    f.type = "hidden";
+    f.name = `${framework} ${skill} Proficiency Can Do Statements`;
+    f.value = scores[skill];
+    form.appendChild(f);
   });
-
-  // set scores for second block as NA
-  const other = framework === "CEFRL" ? "ACTFL" : "CEFRL";
-  ["Reading","Listening","Writing","Speaking"].forEach(skill => {
-    formData.set(`${other} ${skill} Proficiency Can Do Statements`, "NA");
-  });
-
-  // add checkbox values individually by name
-  document.querySelectorAll('input[type="checkbox"][name]').forEach(cb => {
-    formData.set(cb.name, cb.checked ? 1 : 0);
-  });
-
-  // include self-ratings
-  formData.set("Rate your reading proficiency", formData.get("self_reading"));
-  formData.set("Rate your listening proficiency", formData.get("self_listening"));
-  formData.set("Rate your writing proficiency", formData.get("self_writing"));
-  formData.set("Rate your speaking proficiency", formData.get("self_speaking"));
-
-  // draw chart for chosen framework
-  drawChart(scores, framework);
-
-  // send to Google App script; converted from json to text to bypass cors issues
-  responseMsg.textContent = "Saving…";
-  try {
-    const res = await fetch(GOOGLE_SCRIPT_URL, {
-      method: "POST",
-      body: formData
-    });
-
-    const text = await res.text();
-    responseMsg.textContent = "Thanks — your response was saved!";
-    form.reset();
-  }
-  catch (err) {
-    responseMsg.textContent = "Network error: " + err.message;
-  }
 });
+
+
+// Old method: uses a fetch request
+
+// form.addEventListener("submit", async (ev) => {
+//   ev.preventDefault();
+
+//   // collect all form data
+//   const formData = new FormData(form);
+
+//   // capture numeric fields
+//   [
+//     "years_elementary","years_junior","years_high_school","years_university",
+//     "years_institutes","age","self_reading","self_listening",
+//     "self_writing","self_speaking"
+//   ].forEach(f => {
+//     const val = formData.get(f);
+//     formData.set(f, val ? Number(val) : 0); // 0 if no input
+//   });
+
+//   // add metadata
+//   formData.set("time_taken_seconds", Math.floor((Date.now() - startTime) / 1000));
+//   formData.set("Completion_Date", new Date().toISOString().slice(0,10));
+
+//   const framework = formData.get("framework") || "ACTFL";
+
+//   // compute scores for the shown block
+//   const scores = computeSkillScores(framework);
+//   ["Reading","Listening","Writing","Speaking"].forEach(skill => {
+//     formData.set(`${framework} ${skill} Proficiency Can Do Statements`, scores[skill]);
+//   });
+
+//   // set scores for second block as NA
+//   const other = framework === "CEFRL" ? "ACTFL" : "CEFRL";
+//   ["Reading","Listening","Writing","Speaking"].forEach(skill => {
+//     formData.set(`${other} ${skill} Proficiency Can Do Statements`, "NA");
+//   });
+
+//   // add checkbox values individually by name
+//   document.querySelectorAll('input[type="checkbox"][name]').forEach(cb => {
+//     formData.set(cb.name, cb.checked ? 1 : 0);
+//   });
+
+//   // include self-ratings
+//   formData.set("Rate your reading proficiency", formData.get("self_reading"));
+//   formData.set("Rate your listening proficiency", formData.get("self_listening"));
+//   formData.set("Rate your writing proficiency", formData.get("self_writing"));
+//   formData.set("Rate your speaking proficiency", formData.get("self_speaking"));
+
+//   // draw chart for chosen framework
+//   drawChart(scores, framework);
+
+//   // send to Google App script; converted from json to text to bypass cors issues
+//   responseMsg.textContent = "Saving…";
+//   try {
+//     const res = await fetch(GOOGLE_SCRIPT_URL, {
+//       method: "POST",
+//       body: formData
+//     });
+
+//     const text = await res.text();
+//     responseMsg.textContent = "Thanks — your response was saved!";
+//     form.reset();
+//   }
+//   catch (err) {
+//     responseMsg.textContent = "Network error: " + err.message;
+//   }
+// });
 
 function updateLabel(slider) {
   const levels = ["Beginner", "Intermediate", "Advanced", "Superior"];
