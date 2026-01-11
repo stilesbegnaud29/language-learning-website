@@ -12,7 +12,7 @@ const content = {
                     <li>Univ. Language Events</li>
                     <li>Univ. Conversation Exchanges</li>
                 </ul>
-                <p>Connect with others and practice language skills in informal settings.</p>`
+                <p>Connect with others and practice language skills in informal settings. (see resources tab for options)</p>`
     },
     segment3: {
         left: `<h3>Duration</h3>
