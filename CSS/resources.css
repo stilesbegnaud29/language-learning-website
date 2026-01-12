@@ -11,11 +11,14 @@ body {
   color: #222;
 }
 
+.resource-message {
+  text-align: center
+}
 
 /* Category header */
 .category-header {
   text-align: center;
-  margin: 30px 0;
+  margin: 15px 0 0 0;
 }
 
 /* Navigation bar */
